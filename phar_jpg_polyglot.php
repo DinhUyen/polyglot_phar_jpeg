@@ -6,8 +6,13 @@ function generate_base_phar(){
     @unlink($tempname);
     $phar = new Phar($tempname);
     $phar->startBuffering();
-    $phar->addFromString("test.txt", "test");
-    $phar->setStub("<?php phpinfo(); __HALT_COMPILER(); ?>");
+    $phar->addFromString("index.php", "<?php
+    phpinfo();
+?>");
+    $phar->setStub("<?php
+    Phar::webPhar(null, 'index.php');
+    __HALT_COMPILER();
+?>");
     $phar->stopBuffering();
     
     $basecontent = file_get_contents($tempname);
